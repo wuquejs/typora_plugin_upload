@@ -6,11 +6,10 @@
 
     <groupId>cc.wuque.typor_plugin_upload</groupId>
     <artifactId>typora-upload-plugin</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
 
     <dependencies>
-
         <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-all -->
         <dependency>
             <groupId>cn.hutool</groupId>
@@ -66,6 +65,22 @@
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>cc.wuque.typora_plugin_upload.Main</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
