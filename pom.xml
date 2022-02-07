@@ -6,7 +6,7 @@
 
     <groupId>cc.wuque.typor_plugin_upload</groupId>
     <artifactId>typora-upload-plugin</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
 
     <dependencies>
