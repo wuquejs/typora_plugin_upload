@@ -4,6 +4,8 @@ import cc.wuque.typora_plugin_upload.upload.FtpUpload;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.log.StaticLog;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,32 +28,27 @@ public class Main {
         InputStream inputStream;
         String fileName = RandomUtil.randomString(10) + ".jpg";
         FtpUpload ftpUpload = new FtpUpload();
+        HttpResponse response = null;
         for (String filePath : args) {
             if (!new File(filePath).exists()) {
-                inputStream = HttpRequest.get(filePath).execute().bodyStream();
+                StaticLog.info(filePath);
+                response = HttpRequest.get(filePath)
+                        .header("Connection","keep-alive")
+                        .execute();
+                inputStream = response.bodyStream();
             }else {
                 File file = new File(filePath);
                 inputStream = new FileInputStream(file);
-                fileName = file.getName();
             }
-
             String upload = ftpUpload.upload(fileName, inputStream);
+
+            if (response != null) {
+                response.close();
+            }
             System.out.println(upload);
 
         }
 
-
-
-//        for (String arg : args) {
-//            File file = new File(arg);
-//            try {
-//                InputStream inputStream = new FileInputStream(file);
-//                String upload = ftpUpload.upload(file.getName(), inputStream);
-//                System.out.println(upload);
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            }
-//        }
     }
 
     /**
@@ -63,7 +60,7 @@ public class Main {
      */
     public static Boolean checkArgs(String[] args) {
         boolean checkResult = true;
-        //如果没有传入参数则直接推出程序
+        //如果没有传入参数则直接退出程序
         if (args.length == 0) {
             checkResult = false;
         }
