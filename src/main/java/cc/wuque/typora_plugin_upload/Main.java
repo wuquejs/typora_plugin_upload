@@ -7,10 +7,8 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.log.StaticLog;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Files;
 
 /**
  * @ClassName Main
@@ -20,7 +18,7 @@ import java.io.InputStream;
  */
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
 
         if (args.length == 0) {
             return;
@@ -38,7 +36,7 @@ public class Main {
                 inputStream = response.bodyStream();
             }else {
                 File file = new File(filePath);
-                inputStream = new FileInputStream(file);
+                inputStream = Files.newInputStream(file.toPath());
             }
             String upload = ftpUpload.upload(fileName, inputStream);
 
@@ -66,7 +64,6 @@ public class Main {
         }
         for (String filePath : args) {
             if (!new File(filePath).exists()) {
-                //System.out.println(filePath + " 文件不存在");
                 checkResult = false;
             }
         }

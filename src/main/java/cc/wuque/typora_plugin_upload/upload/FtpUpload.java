@@ -39,7 +39,6 @@ public class FtpUpload {
         ftpClient.setControlEncoding("UTF-8");
 
         try {
-            //ftpClient.storeFile(new String(fileName.getBytes("UTF-8"),"iso-8859-1"), input);
             ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
             ftpClient.enterLocalActiveMode();
             ftpClient.makeDirectory(path);
@@ -59,7 +58,6 @@ public class FtpUpload {
                 }
             }
         }
-        //System.out.println(resultPath + "/wuque/" + fileName);
         return resultPath + "/" +path +"/"+  fileName;
 
     }
