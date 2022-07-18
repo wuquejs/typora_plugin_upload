@@ -18,7 +18,7 @@
 
 以我当前使用的版本为例(0.11.13)
 
-运行jar包需要先配置config.properties文件里面的信息
+~~运行jar包需要先配置config.properties文件里面的信息~~
 
 ## 方式一
 
