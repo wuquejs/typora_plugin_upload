@@ -24,7 +24,7 @@ public class Main {
             return;
         }
         InputStream inputStream;
-        String fileName = RandomUtil.randomString(10) + ".jpg";
+
         FtpUpload ftpUpload = new FtpUpload();
         HttpResponse response = null;
         for (String filePath : args) {
@@ -38,6 +38,7 @@ public class Main {
                 File file = new File(filePath);
                 inputStream = Files.newInputStream(file.toPath());
             }
+            String fileName = RandomUtil.randomString(10) + ".jpg";
             String upload = ftpUpload.upload(fileName, inputStream);
 
             if (response != null) {
