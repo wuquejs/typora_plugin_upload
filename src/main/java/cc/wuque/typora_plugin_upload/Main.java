@@ -1,6 +1,7 @@
 package cc.wuque.typora_plugin_upload;
 
 import cc.wuque.typora_plugin_upload.upload.FtpUpload;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.HttpRequest;
@@ -27,25 +28,36 @@ public class Main {
 
         FtpUpload ftpUpload = new FtpUpload();
         HttpResponse response = null;
+        String fileName = "";
         for (String filePath : args) {
+//            StaticLog.debug("文件路径：{}", filePath);
             if (!new File(filePath).exists()) {
                 StaticLog.info(filePath);
                 response = HttpRequest.get(filePath)
                         .header("Connection","keep-alive")
                         .execute();
                 inputStream = response.bodyStream();
+                fileName = RandomUtil.randomString(10) + ".png";
             }else {
                 File file = new File(filePath);
+//                inputStream = FileUtil.getInputStream(file);
                 inputStream = Files.newInputStream(file.toPath());
+                // 输出流到控制台
+                fileName = RandomUtil.randomString(10) + "_" + file.getName();
+//                StaticLog.debug("文件名：{}", file.getName());
+//                StaticLog.debug("文件大小：{}", file.length());
+//                StaticLog.debug("文件路径：{}", file.getAbsolutePath());
+//                StaticLog.debug("文件流:", inputStream.read());
+//                FileUtil.writeFromStream(inputStream, new File("/Users/wuque/Desktop/work/code/git/wuque/typora_plugin_upload/src/main/resources/" + file.getName()));
             }
-            String fileName = RandomUtil.randomString(10) + ".jpg";
+//            String fileName = RandomUtil.randomString(10) + ".png";
+//            String fileName = IdUtil.fastSimpleUUID() + ;
             String upload = ftpUpload.upload(fileName, inputStream);
 
             if (response != null) {
                 response.close();
             }
             System.out.println(upload);
-
         }
 
     }

@@ -1,11 +1,17 @@
 package cc.wuque.typora_plugin_upload.upload;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.extra.ftp.Ftp;
+import cn.hutool.extra.ftp.FtpMode;
 import cn.hutool.setting.dialect.Props;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 /**
  * @ClassName FtpUpload
@@ -35,30 +41,42 @@ public class FtpUpload {
      * @Return url链接
      */
     public String upload(String fileName, InputStream input){
-        FTPClient ftpClient = getFTPClient();
-        ftpClient.setControlEncoding("UTF-8");
+//        FTPClient ftpClient = getFTPClient();
+//        ftpClient.setControlEncoding("UTF-8");
 
-        try {
-            ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
-            ftpClient.enterLocalActiveMode();
-            ftpClient.makeDirectory(path);
-            ftpClient.changeWorkingDirectory(path);
-            ftpClient.setBufferSize(1024);
-            ftpClient.storeFile(fileName,input);
-            input.close();
-            ftpClient.logout();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally {
-            if (ftpClient.isConnected()){
-                try {
-                    ftpClient.disconnect();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+//        try {
+//            ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+//            ftpClient.enterLocalActiveMode();
+//            boolean b2 = ftpClient.makeDirectory(path);
+//            boolean b1 = ftpClient.changeWorkingDirectory(path);
+//            ftpClient.setBufferSize(1024);
+//            boolean b = ftpClient.storeFile(fileName, input);
+//            if (!b){
+//                System.out.println("上传失败");
+//            }
+//            input.close();
+//            ftpClient.logout();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }finally {
+//            if (ftpClient.isConnected()){
+//                try {
+//                    ftpClient.disconnect();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+        Ftp ftp = new Ftp(url, Integer.parseInt(port), username, password);
+        ftp.setMode(FtpMode.Passive);
+        String format = DateUtil.format(new Date(), "yyyyMMdd");
+        String newPath = path + "/" + format;
+//        boolean cd = ftp.cd(path);
+        boolean upload = ftp.upload(newPath, fileName, input);
+        if (!upload){
+            System.out.println("上传失败");
         }
-        return resultPath + "/" +path +"/"+  fileName;
+        return resultPath + "/" +newPath +"/"+  fileName;
 
     }
 
@@ -72,8 +90,8 @@ public class FtpUpload {
         FTPClient ftpClient = new FTPClient();
         try {
             ftpClient.connect(url, Integer.parseInt(port));
-            ftpClient.login(username, password);
-            if (!FTPReply.isPositiveCompletion(ftpClient.getReplyCode())){
+            boolean login = ftpClient.login(username, password);
+            if (!FTPReply.isPositiveCompletion(ftpClient.getReplyCode()) && !login){
                 System.out.println("未能成功链接到FTP，用户名或密码错误!");
                 ftpClient.disconnect();
             }
