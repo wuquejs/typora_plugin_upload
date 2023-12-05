@@ -1,16 +1,22 @@
 package cc.wuque.typora_plugin_upload.upload;
 
+import cc.wuque.typora_plugin_upload.util.ImageUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.extra.ftp.Ftp;
 import cn.hutool.extra.ftp.FtpMode;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import cn.hutool.setting.dialect.Props;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.ImageOutputStreamImpl;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 
 /**
@@ -33,6 +39,10 @@ public class FtpUpload {
     private final String resultPath = props.getStr("ftp.resPath");
     private final String path = props.getStr("ftp.path");
 
+//    public String upload(String fileName, InputStream input, OutputStream output){
+//
+//    }
+
     /**
      * @Author: 无缺
      * @Description:
@@ -41,42 +51,31 @@ public class FtpUpload {
      * @Return url链接
      */
     public String upload(String fileName, InputStream input){
-//        FTPClient ftpClient = getFTPClient();
-//        ftpClient.setControlEncoding("UTF-8");
-
-//        try {
-//            ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
-//            ftpClient.enterLocalActiveMode();
-//            boolean b2 = ftpClient.makeDirectory(path);
-//            boolean b1 = ftpClient.changeWorkingDirectory(path);
-//            ftpClient.setBufferSize(1024);
-//            boolean b = ftpClient.storeFile(fileName, input);
-//            if (!b){
-//                System.out.println("上传失败");
-//            }
-//            input.close();
-//            ftpClient.logout();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }finally {
-//            if (ftpClient.isConnected()){
-//                try {
-//                    ftpClient.disconnect();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-        Ftp ftp = new Ftp(url, Integer.parseInt(port), username, password);
-        ftp.setMode(FtpMode.Passive);
-        String format = DateUtil.format(new Date(), "yyyyMMdd");
-        String newPath = path + "/" + format;
+        try {
+            Ftp ftp = new Ftp(url, Integer.parseInt(port), username, password);
+            ftp.setMode(FtpMode.Passive);
+            String format = DateUtil.format(new Date(), "yyyyMMdd");
+            String newPath = path + "/" + format;
+            File file = FileUtil.newFile(FileUtil.getTmpDirPath() + fileName);
+            file.createNewFile();
 //        boolean cd = ftp.cd(path);
-        boolean upload = ftp.upload(newPath, fileName, input);
-        if (!upload){
-            System.out.println("上传失败");
+            OutputStream outputStream = FileUtil.getOutputStream(file);
+
+            ImageUtil.imagePressTest(input,outputStream,"img.wuque.cc");
+            BufferedInputStream inputStream = FileUtil.getInputStream(file);
+
+
+            boolean upload = ftp.upload(newPath, fileName, inputStream);
+            if (!upload){
+                System.out.println("上传失败");
+            }
+            FileUtil.del(file);
+            return resultPath + "/" +newPath +"/"+  fileName;
+
+        }catch (Exception e){
+            return "上传失败:" + JSONUtil.toJsonStr(e);
         }
-        return resultPath + "/" +newPath +"/"+  fileName;
+
 
     }
 
@@ -100,4 +99,6 @@ public class FtpUpload {
         }
         return ftpClient;
     }
+
+
 }

@@ -10,6 +10,7 @@ import cn.hutool.log.StaticLog;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * @ClassName Main
@@ -28,6 +29,7 @@ public class Main {
 
         FtpUpload ftpUpload = new FtpUpload();
         HttpResponse response = null;
+//        OutputStream outputStream;
         String fileName = "";
         for (String filePath : args) {
 //            StaticLog.debug("文件路径：{}", filePath);
@@ -37,11 +39,13 @@ public class Main {
                         .header("Connection","keep-alive")
                         .execute();
                 inputStream = response.bodyStream();
+//                outputStream = Files.newOutputStream(Paths.get(""));
                 fileName = RandomUtil.randomString(10) + ".png";
             }else {
                 File file = new File(filePath);
 //                inputStream = FileUtil.getInputStream(file);
                 inputStream = Files.newInputStream(file.toPath());
+//                outputStream = Files.newOutputStream(file.toPath());
                 // 输出流到控制台
                 fileName = RandomUtil.randomString(10) + "_" + file.getName();
 //                StaticLog.debug("文件名：{}", file.getName());
